@@ -3,6 +3,7 @@
 
 #include "rtweekend.h"
 #include "hittable.h"
+#include "texture.h"
 
 /**
  * @brief 所有材质的基类
@@ -16,7 +17,8 @@ public:
 class lambertian : public material
 {
 public:
-    lambertian(const color &a) : albedo(a) {}
+    lambertian(const color &a) : albedo(make_shared<solid_color>(a)) {}
+    lambertian(shared_ptr<texture> a) : albedo(a) {}
 
     virtual bool scatter(const ray &r, const hit_record &rec, color &attenuation, ray &scattered) const override
     {
@@ -28,12 +30,13 @@ public:
         }
 
         scattered = ray(rec.p, scatter_direction, r.time());
-        attenuation = albedo;
+        attenuation = albedo->sample(rec.u, rec.v, rec.p);
+
         return true;
     }
 
 public:
-    color albedo;
+    shared_ptr<texture> albedo;
 };
 
 class metal : public material
