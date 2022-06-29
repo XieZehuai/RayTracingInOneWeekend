@@ -14,6 +14,8 @@ public:
 
     virtual bool hit(const ray &r, double t_min, double t_max, hit_record &rec) const override;
 
+    virtual bool bounding_box(double center0, double center1, aabb &output_box) const override;
+
     point3 center(double time) const;
 
 public:
@@ -56,6 +58,18 @@ bool moving_sphere::hit(const ray &r, double t_min, double t_max, hit_record &re
     rec.set_face_normal(r, outward_normal);
     rec.mat = mat;
 
+    return true;
+}
+
+bool moving_sphere::bounding_box(double time0, double time1, aabb &output_box) const
+{
+    aabb box0(center(time0) - vec3(radius, radius, radius),
+              center(time0) + vec3(radius, radius, radius));
+
+    aabb box1(center(time1) - vec3(radius, radius, radius),
+              center(time1) + vec3(radius, radius, radius));
+
+    output_box = surrounding_box(box0, box1);
     return true;
 }
 
