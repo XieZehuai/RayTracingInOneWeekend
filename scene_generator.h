@@ -244,7 +244,7 @@ public:
         aspect_ratio = 1.0;
         image_width = 600;
         image_height = 600;
-        samples_per_pixel = 500;
+        samples_per_pixel = 2000;
         max_depth = 20;
         background_color = color(0, 0, 0);
         lookfrom = point3(278, 278, -800);

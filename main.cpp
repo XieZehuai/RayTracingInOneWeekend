@@ -22,7 +22,7 @@ int main()
     scenes.push_back(make_shared<simple_light>());
     scenes.push_back(make_shared<cornell_box>());
 
-    const int scene_index = 3;
+    const int scene_index = 1;
 
     // 设置 std::cerr 输出浮点数时保留 2 位精度
     std::cerr << std::setiosflags(std::ios::fixed) << std::setprecision(2);
@@ -49,7 +49,10 @@ int main()
         write_color(output, frame_buffer[i], scenes[scene_index]->samples_per_pixel);
     }
 
-    std::cerr << "\nDone, cost time: " << ((end - start) / CLOCKS_PER_SEC) << " seconds";
+    auto time = (end - start) / CLOCKS_PER_SEC;
+    auto minutes = time / 60;
+    auto seconds = time % 60;
+    std::cerr << "\nDone, cost time: " << minutes << " minutes, " << seconds << " seconds";
 
     return 0;
 }
