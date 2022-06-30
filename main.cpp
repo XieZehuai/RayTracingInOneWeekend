@@ -24,18 +24,22 @@ int main()
 
     const int scene_index = 2;
 
+    // 设置 std::cerr 输出浮点数时保留 2 位精度
     std::cerr << std::setiosflags(std::ios::fixed) << std::setprecision(2);
 
     // rendering ===================================================================================================
-    // multi_thread_renderer renderer(4, 4);
-    single_thread_renderer renderer;
+    multi_thread_renderer renderer(4, 4);
+    // single_thread_renderer renderer;
 
     clock_t start = clock();
     renderer.render(scenes[scene_index]);
     clock_t end = clock();
 
     // generate image ==============================================================================================
-    std::ofstream output(scenes[scene_index]->output_filename());
+    std::string path = "D:/Workspace/RayTracingInOneWeekend/results/";
+    std::string filename = scenes[scene_index]->output_filename();
+    std::ofstream output(path + filename);
+
     output << "P3\n"
            << scenes[scene_index]->image_width << ' ' << scenes[scene_index]->image_height << "\n255\n";
 

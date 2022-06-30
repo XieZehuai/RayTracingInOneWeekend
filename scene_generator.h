@@ -1,6 +1,8 @@
 #ifndef SCENE_GENERATOR_H
 #define SCENE_GENERATOR_H
 
+#include <string>
+
 #include "rtweekend.h"
 #include "sphere.h"
 #include "moving_sphere.h"
@@ -38,7 +40,7 @@ public:
         return bvh_node(generate(), 0.0, 1.0);
     }
 
-    virtual const char *output_filename() const = 0;
+    virtual std::string output_filename() const = 0;
 
     virtual hittable_list generate() const = 0;
 };
@@ -55,7 +57,7 @@ public:
         background_color = color(0.70, 0.80, 1.00);
     }
 
-    virtual const char *output_filename() const override
+    virtual std::string output_filename() const override
     {
         return "random_scene.ppm";
     }
@@ -129,7 +131,7 @@ public:
         background_color = color(0.70, 0.80, 1.00);
     }
 
-    virtual const char *output_filename() const override
+    virtual std::string output_filename() const override
     {
         return "two_spheres.ppm";
     }
@@ -158,7 +160,7 @@ public:
         background_color = color(0.70, 0.80, 1.00);
     }
 
-    virtual const char *output_filename() const override
+    virtual std::string output_filename() const override
     {
         return "two_perlin_spheres.ppm";
     }
@@ -186,7 +188,7 @@ public:
         background_color = color(0.70, 0.80, 1.00);
     }
 
-    virtual const char *output_filename() const override
+    virtual std::string output_filename() const override
     {
         return "earth.ppm";
     }
@@ -213,7 +215,7 @@ public:
         vfov = 20.0;
     }
 
-    virtual const char *output_filename() const override
+    virtual std::string output_filename() const override
     {
         return "simple_light.ppm";
     }
@@ -240,16 +242,17 @@ public:
     cornell_box()
     {
         aspect_ratio = 1.0;
-        image_width = 400;
-        image_height = 400;
-        samples_per_pixel = 200;
+        image_width = 600;
+        image_height = 600;
+        samples_per_pixel = 500;
+        max_depth = 20;
         background_color = color(0, 0, 0);
         lookfrom = point3(278, 278, -800);
         lookat = point3(278, 278, 0);
         vfov = 40.0;
     }
 
-    virtual const char *output_filename() const override
+    virtual std::string output_filename() const override
     {
         return "cornell_box.ppm";
     }
