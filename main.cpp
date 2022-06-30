@@ -22,7 +22,7 @@ int main()
     scenes.push_back(make_shared<simple_light>());
     scenes.push_back(make_shared<cornell_box>());
 
-    const int scene_index = 1;
+    const int scene_index = 5;
 
     // 设置 std::cerr 输出浮点数时保留 2 位精度
     std::cerr << std::setiosflags(std::ios::fixed) << std::setprecision(2);
