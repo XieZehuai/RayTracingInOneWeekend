@@ -78,11 +78,6 @@ public:
     {
     }
 
-    /**
-     * @brief Construct a new image texture object
-     * 
-     * @param filename absolute path of image file
-     */
     image_texture(const char *filename)
     {
         auto components_per_pixel = bytes_per_pixel;

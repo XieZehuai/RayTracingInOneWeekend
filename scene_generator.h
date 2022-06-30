@@ -195,7 +195,7 @@ public:
 
     virtual hittable_list generate() const override
     {
-        auto earth_texture = make_shared<image_texture>("D:/Workspace/RayTracingInOneWeekend/res/earthmap.jpg");
+        auto earth_texture = make_shared<image_texture>("../../res/earthmap.jpg");
         auto earth_material = make_shared<lambertian>(earth_texture);
         auto globe = make_shared<sphere>(point3(0, 0, 0), 2, earth_material);
 
