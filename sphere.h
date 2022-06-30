@@ -45,10 +45,10 @@ bool sphere::hit(const ray &r, double t_min, double t_max, hit_record &rec) cons
 
     // Find the nearest root that lies in the acceptable range.
     auto root = (-half_b - sqrtd) / a;
-    if (root < t_min || t_max < root)
+    if (root < t_min || root > t_max)
     {
         root = (-half_b + sqrtd) / a;
-        if (root < t_min || t_max < root)
+        if (root < t_min || root > t_max)
             return false;
     }
 
@@ -58,7 +58,7 @@ bool sphere::hit(const ray &r, double t_min, double t_max, hit_record &rec) cons
 
     vec3 outward_normal = (rec.p - center) / radius;
     rec.set_face_normal(r, outward_normal);
-    
+
     get_sphere_uv(outward_normal, rec.u, rec.v);
 
     return true;

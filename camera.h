@@ -3,6 +3,9 @@
 
 #include "rtweekend.h"
 
+/**
+ * @brief 相机
+ */
 class camera
 {
 public:

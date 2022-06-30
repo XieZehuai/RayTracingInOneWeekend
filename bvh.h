@@ -6,22 +6,40 @@
 #include "hittable.h"
 #include "hittable_list.h"
 
+/**
+ * @brief bvh 树节点，通过递归创建 bvh 节点构成 bvh 树；bvh node 同样继承自
+ * hittable，所以在 bvh 树中的节点，可以是 bvh node 也可以是实际的物体；
+ */
 class bvh_node : public hittable
 {
 public:
     bvh_node();
 
+    /**
+     * @brief 为 hittalbe_list 构建 bvh 树
+     *
+     * @param list hittable_list 实例
+     * @param time0 相机快门时间下限
+     * @param time1 相机快门时间上限
+     */
     bvh_node(const hittable_list &list, double time0, double time1)
         : bvh_node(list.objects, 0, list.objects.size(), time0, time1)
     {
     }
 
-    bvh_node(
-        const std::vector<shared_ptr<hittable>> &src_objects,
-        size_t start, size_t end, double time0, double time1);
+    /**
+     * @brief 为指定下标范围内的物体生成 bvh 树
+     *
+     * @param src_objects 目标数组
+     * @param start 起始下标（包含）
+     * @param end 终止下标（包含）
+     * @param time0 相机快门时间下限
+     * @param time1 相机快门时间上限
+     */
+    bvh_node(const std::vector<shared_ptr<hittable>> &src_objects,
+             size_t start, size_t end, double time0, double time1);
 
-    virtual bool hit(
-        const ray &r, double t_min, double t_max, hit_record &rec) const override;
+    virtual bool hit(const ray &r, double t_min, double t_max, hit_record &rec) const override;
 
     virtual bool bounding_box(double time0, double time1, aabb &output_box) const override;
 
@@ -57,11 +75,11 @@ bool box_z_compare(const shared_ptr<hittable> a, const shared_ptr<hittable> b)
     return box_compare(a, b, 2);
 }
 
-bvh_node::bvh_node(
-    const std::vector<shared_ptr<hittable>> &src_objects,
-    size_t start, size_t end, double time0, double time1)
+bvh_node::bvh_node(const std::vector<shared_ptr<hittable>> &src_objects,
+                   size_t start, size_t end, double time0, double time1)
 {
-    auto objects = src_objects; // Create a modifiable array of the source scene objects
+    // Create a modifiable array of the source scene objects
+    auto objects = src_objects;
 
     int axis = random_int(0, 2);
     auto comparator = (axis == 0)   ? box_x_compare

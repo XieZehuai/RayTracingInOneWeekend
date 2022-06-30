@@ -27,7 +27,7 @@ public:
 
 point3 moving_sphere::center(double time) const
 {
-    float t = (time - time0) / (time1 - time0);
+    double t = (time - time0) / (time1 - time0);
     return center0 + (center1 - center0) * t;
 }
 
