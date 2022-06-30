@@ -9,40 +9,59 @@
 #include "hittable_list.h"
 #include "texture.h"
 #include "material.h"
+#include "camera.h"
 
 class scene_generator
 {
 public:
-    virtual hittable_list generate(double *aspect_ratio,
-                                   int *image_width,
-                                   int *image_height,
-                                   int *samples_per_pixel,
-                                   color *background_color,
-                                   point3 *lookfrom,
-                                   point3 *lookat,
-                                   double *vfov,
-                                   double *aperture) const = 0;
+    double aspect_ratio = 16.0 / 9.0;
+    int image_width = 600;
+    int image_height = static_cast<int>(image_width / aspect_ratio);
+    int max_depth = 10;
+    int samples_per_pixel = 200;
+
+    point3 lookfrom;
+    point3 lookat;
+    double vfov = 40.0;
+    double aperture = 0.0;
+    vec3 vup = vec3(0, 1, 0);
+    double dist_to_focus = 10.0;
+    color background_color = vec3(0);
+
+    camera get_camera() const
+    {
+        return camera(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+    }
+
+    bvh_node generate_bvh_scene() const
+    {
+        return bvh_node(generate(), 0.0, 1.0);
+    }
+
+    virtual const char *output_filename() const = 0;
+
+    virtual hittable_list generate() const = 0;
 };
 
 class random_scene : public scene_generator
 {
 public:
-    virtual hittable_list generate(double *aspect_ratio,
-                                   int *image_width,
-                                   int *image_height,
-                                   int *samples_per_pixel,
-                                   color *background_color,
-                                   point3 *lookfrom,
-                                   point3 *lookat,
-                                   double *vfov,
-                                   double *aperture) const override
+    random_scene()
     {
-        *lookfrom = point3(13, 2, 3);
-        *lookat = point3(0, 0, 0);
-        *vfov = 20.0;
-        *aperture = 0.1;
-        *background_color = color(0.70, 0.80, 1.00);
+        lookfrom = point3(13, 2, 3);
+        lookat = point3(0, 0, 0);
+        vfov = 20.0;
+        aperture = 0.1;
+        background_color = color(0.70, 0.80, 1.00);
+    }
 
+    virtual const char *output_filename() const override
+    {
+        return "random_scene.ppm";
+    }
+
+    virtual hittable_list generate() const override
+    {
         hittable_list world;
 
         auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1), color(0.9, 0.9, 0.9));
@@ -102,21 +121,21 @@ public:
 class two_spheres : public scene_generator
 {
 public:
-    virtual hittable_list generate(double *aspect_ratio,
-                                   int *image_width,
-                                   int *image_height,
-                                   int *samples_per_pixel,
-                                   color *background_color,
-                                   point3 *lookfrom,
-                                   point3 *lookat,
-                                   double *vfov,
-                                   double *aperture) const override
+    two_spheres()
     {
-        *lookfrom = point3(13, 2, 3);
-        *lookat = point3(0, 0, 0);
-        *vfov = 20.0;
-        *background_color = color(0.70, 0.80, 1.00);
+        lookfrom = point3(13, 2, 3);
+        lookat = point3(0, 0, 0);
+        vfov = 20.0;
+        background_color = color(0.70, 0.80, 1.00);
+    }
 
+    virtual const char *output_filename() const override
+    {
+        return "two_spheres.ppm";
+    }
+
+    virtual hittable_list generate() const override
+    {
         hittable_list objects;
 
         auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1), color(0.9, 0.9, 0.9));
@@ -131,21 +150,49 @@ public:
 class two_perlin_spheres : public scene_generator
 {
 public:
-    virtual hittable_list generate(double *aspect_ratio,
-                                   int *image_width,
-                                   int *image_height,
-                                   int *samples_per_pixel,
-                                   color *background_color,
-                                   point3 *lookfrom,
-                                   point3 *lookat,
-                                   double *vfov,
-                                   double *aperture) const override
+    two_perlin_spheres()
     {
-        *lookfrom = point3(13, 2, 3);
-        *lookat = point3(0, 0, 0);
-        *vfov = 20.0;
-        *background_color = color(0.70, 0.80, 1.00);
+        lookfrom = point3(13, 2, 3);
+        lookat = point3(0, 0, 0);
+        vfov = 20.0;
+        background_color = color(0.70, 0.80, 1.00);
+    }
 
+    virtual const char *output_filename() const override
+    {
+        return "two_perlin_spheres.ppm";
+    }
+
+    virtual hittable_list generate() const override
+    {
+        hittable_list objects;
+
+        auto perlin_tex = make_shared<noise_texture>(4);
+        objects.add(make_shared<sphere>(point3(0, -1000, 0), 1000, make_shared<lambertian>(perlin_tex)));
+        objects.add(make_shared<sphere>(point3(0, 2, 0), 2, make_shared<lambertian>(perlin_tex)));
+
+        return objects;
+    };
+};
+
+class earth : public scene_generator
+{
+public:
+    earth()
+    {
+        lookfrom = point3(13, 2, 3);
+        lookat = point3(0, 0, 0);
+        vfov = 20.0;
+        background_color = color(0.70, 0.80, 1.00);
+    }
+
+    virtual const char *output_filename() const override
+    {
+        return "earth.ppm";
+    }
+
+    virtual hittable_list generate() const override
+    {
         auto earth_texture = make_shared<image_texture>("D:/Workspace/RayTracingInOneWeekend/res/earthmap.jpg");
         auto earth_material = make_shared<lambertian>(earth_texture);
         auto globe = make_shared<sphere>(point3(0, 0, 0), 2, earth_material);
@@ -154,57 +201,25 @@ public:
     };
 };
 
-class earth : public scene_generator
-{
-public:
-    virtual hittable_list generate(double *aspect_ratio,
-                                   int *image_width,
-                                   int *image_height,
-                                   int *samples_per_pixel,
-                                   color *background_color,
-                                   point3 *lookfrom,
-                                   point3 *lookat,
-                                   double *vfov,
-                                   double *aperture) const override
-    {
-        *lookfrom = point3(13, 2, 3);
-        *lookat = point3(0, 0, 0);
-        *vfov = 20.0;
-        *background_color = color(0.70, 0.80, 1.00);
-
-        hittable_list objects;
-
-        auto perlin_tex = make_shared<noise_texture>(4);
-        objects.add(make_shared<sphere>(point3(0, -1000, 0), 1000, make_shared<lambertian>(perlin_tex)));
-        objects.add(make_shared<sphere>(point3(0, 2, 0), 2, make_shared<lambertian>(perlin_tex)));
-
-        auto light_mat = make_shared<diffuse_light>(color(4, 4, 4));
-        objects.add(make_shared<xy_rect>(3, 5, 1, 3, -2, light_mat));
-        objects.add(make_shared<sphere>(point3(0, 8, 0), 2, light_mat));
-
-        return objects;
-    };
-};
-
 class simple_light : public scene_generator
 {
 public:
-    virtual hittable_list generate(double *aspect_ratio,
-                                   int *image_width,
-                                   int *image_height,
-                                   int *samples_per_pixel,
-                                   color *background_color,
-                                   point3 *lookfrom,
-                                   point3 *lookat,
-                                   double *vfov,
-                                   double *aperture) const override
+    simple_light()
     {
-        *samples_per_pixel = 400;
-        *background_color = color(0, 0, 0);
-        *lookfrom = point3(26, 3, 6);
-        *lookat = point3(0, 2, 0);
-        *vfov = 20.0;
+        samples_per_pixel = 400;
+        background_color = color(0, 0, 0);
+        lookfrom = point3(26, 3, 6);
+        lookat = point3(0, 2, 0);
+        vfov = 20.0;
+    }
 
+    virtual const char *output_filename() const override
+    {
+        return "simple_light.ppm";
+    }
+
+    virtual hittable_list generate() const override
+    {
         hittable_list objects;
 
         auto perlin_tex = make_shared<noise_texture>(4);
@@ -222,25 +237,25 @@ public:
 class cornell_box : public scene_generator
 {
 public:
-    virtual hittable_list generate(double *aspect_ratio,
-                                   int *image_width,
-                                   int *image_height,
-                                   int *samples_per_pixel,
-                                   color *background_color,
-                                   point3 *lookfrom,
-                                   point3 *lookat,
-                                   double *vfov,
-                                   double *aperture) const override
+    cornell_box()
     {
-        *aspect_ratio = 1.0;
-        *image_width = 400;
-        *image_height = 400;
-        *samples_per_pixel = 200;
-        *background_color = color(0, 0, 0);
-        *lookfrom = point3(278, 278, -800);
-        *lookat = point3(278, 278, 0);
-        *vfov = 40.0;
+        aspect_ratio = 1.0;
+        image_width = 400;
+        image_height = 400;
+        samples_per_pixel = 200;
+        background_color = color(0, 0, 0);
+        lookfrom = point3(278, 278, -800);
+        lookat = point3(278, 278, 0);
+        vfov = 40.0;
+    }
 
+    virtual const char *output_filename() const override
+    {
+        return "cornell_box.ppm";
+    }
+
+    virtual hittable_list generate() const override
+    {
         hittable_list objects;
 
         auto red = make_shared<lambertian>(color(.65, .05, .05));
