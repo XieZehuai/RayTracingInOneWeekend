@@ -15,15 +15,16 @@
 int main()
 {
     std::vector<shared_ptr<scene_generator>> scenes;
-    scenes.push_back(make_shared<random_scene>());       // 0
-    scenes.push_back(make_shared<two_spheres>());        // 1
-    scenes.push_back(make_shared<two_perlin_spheres>()); // 2
-    scenes.push_back(make_shared<earth>());              // 3
-    scenes.push_back(make_shared<simple_light>());       // 4
-    scenes.push_back(make_shared<cornell_box>());        // 5
-    scenes.push_back(make_shared<cornell_smoke>());      // 6
+    scenes.push_back(make_shared<random_scene>());              // 0
+    scenes.push_back(make_shared<two_spheres>());               // 1
+    scenes.push_back(make_shared<two_perlin_spheres>());        // 2
+    scenes.push_back(make_shared<earth>());                     // 3
+    scenes.push_back(make_shared<simple_light>());              // 4
+    scenes.push_back(make_shared<cornell_box>());               // 5
+    scenes.push_back(make_shared<cornell_smoke>());             // 6
+    scenes.push_back(make_shared<the_next_week_final_scene>()); // 7
 
-    auto selected_scene = scenes[6];
+    auto selected_scene = scenes[7];
 
     // 设置 std::cerr 输出浮点数时保留 2 位精度
     std::cerr << std::setiosflags(std::ios::fixed) << std::setprecision(2);
