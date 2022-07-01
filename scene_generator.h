@@ -9,6 +9,7 @@
 #include "aa_rect.h"
 #include "box.h"
 #include "hittable_list.h"
+#include "constant_medium.h"
 #include "texture.h"
 #include "material.h"
 #include "camera.h"
@@ -285,6 +286,56 @@ public:
 
         return objects;
     };
+};
+
+class cornell_smoke : public scene_generator
+{
+public:
+    cornell_smoke()
+    {
+        aspect_ratio = 1.0;
+        image_width = 600;
+        image_height = 600;
+        samples_per_pixel = 200;
+        lookfrom = point3(278, 278, -800);
+        lookat = point3(278, 278, 0);
+        vfov = 40.0;
+    }
+
+    virtual std::string output_filename() const override
+    {
+        return "cornell_smoke.ppm";
+    }
+
+    virtual hittable_list generate() const override
+    {
+        hittable_list objects;
+
+        auto red = make_shared<lambertian>(color(.65, .05, .05));
+        auto white = make_shared<lambertian>(color(.73, .73, .73));
+        auto green = make_shared<lambertian>(color(.12, .45, .15));
+        auto light = make_shared<diffuse_light>(color(7, 7, 7));
+
+        objects.add(make_shared<yz_rect>(0, 555, 0, 555, 555, green));
+        objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
+        objects.add(make_shared<xz_rect>(113, 443, 127, 432, 554, light));
+        objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
+        objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
+        objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
+
+        shared_ptr<hittable> box1 = make_shared<box>(point3(0, 0, 0), point3(165, 330, 165), white);
+        box1 = make_shared<rotate_y>(box1, 15);
+        box1 = make_shared<translate>(box1, vec3(265, 0, 295));
+
+        shared_ptr<hittable> box2 = make_shared<box>(point3(0, 0, 0), point3(165, 165, 165), white);
+        box2 = make_shared<rotate_y>(box2, -18);
+        box2 = make_shared<translate>(box2, vec3(130, 0, 65));
+
+        objects.add(make_shared<constant_medium>(box1, 0.01, color(0, 0, 0)));
+        objects.add(make_shared<constant_medium>(box2, 0.01, color(1, 1, 1)));
+
+        return objects;
+    }
 };
 
 #endif
