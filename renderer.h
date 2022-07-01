@@ -9,11 +9,12 @@
 #include "hittable.h"
 #include "material.h"
 #include "scene_generator.h"
+#include "pdf.h"
 
 class renderer
 {
 public:
-    virtual void render(const shared_ptr<scene_generator> &scene) = 0;
+    virtual void render(const shared_ptr<scene_generator> &scene, shared_ptr<hittable> &lights) = 0;
 
     std::vector<color> get_frame_buffer() const
     {
@@ -23,7 +24,8 @@ public:
 protected:
     std::vector<color> frame_buffer;
 
-    color ray_color(const ray &r, const color &background_color, const hittable &world, int depth)
+    color ray_color(const ray &r, const color &background_color, const hittable &world,
+                    shared_ptr<hittable> &lights, int depth)
     {
         if (depth <= 0)
             return color(0, 0, 0);
@@ -35,34 +37,21 @@ protected:
 
         ray scattered;
         color emitted = rec.mat->emitted(r, rec, rec.u, rec.v, rec.p); // 物体表面的自发光
-        double pdf;
+        double pdf_val;
         color albedo;
 
-        if (!rec.mat->scatter(r, rec, albedo, scattered, pdf))
+        if (!rec.mat->scatter(r, rec, albedo, scattered, pdf_val))
             return emitted;
 
-        auto on_light = point3(random_double(213, 343), 554, random_double(227, 332));
-        auto to_light = on_light - rec.p;
-        auto distance_squared = to_light.length_squared();
-        to_light = unit_vector(to_light);
+        auto p0 = make_shared<hittable_pdf>(lights, rec.p);
+        auto p1 = make_shared<cosine_pdf>(rec.normal);
+        mixture_pdf mixture_pdf(p0, p1);
 
-        if (dot(to_light, rec.normal) < 0)
-        {
-            return emitted;
-        }
-
-        double light_area = (343 - 213) * (332 - 227);
-        auto light_cosine = fabs(to_light.y());
-        if (light_cosine < 0.000001)
-        {
-            return emitted;
-        }
-
-        pdf = distance_squared / (light_cosine * light_area);
-        scattered = ray(rec.p, to_light, r.time());
+        scattered = ray(rec.p, mixture_pdf.generate(), r.time());
+        pdf_val = mixture_pdf.sample(scattered.direction());
 
         color attenuation = albedo * rec.mat->scattering_pdf(r, rec, scattered);
-        return emitted + attenuation * ray_color(scattered, background_color, world, depth - 1) / pdf;
+        return emitted + attenuation * ray_color(scattered, background_color, world, lights, depth - 1) / pdf_val;
     }
 
     void update_progress(double progress)
@@ -79,7 +68,7 @@ public:
     {
     }
 
-    virtual void render(const shared_ptr<scene_generator> &scene) override
+    virtual void render(const shared_ptr<scene_generator> &scene, shared_ptr<hittable> &lights) override
     {
         int image_width = scene->image_width;
         int image_height = scene->image_height;
@@ -110,7 +99,7 @@ public:
                         auto v = (j + random_double()) / (image_height - 1);
                         ray r = cam.get_ray(u, v);
 
-                        pixel_color += ray_color(r, background_color, world, max_depth);
+                        pixel_color += ray_color(r, background_color, world, lights, max_depth);
                     }
 
                     frame_buffer[m++] = pixel_color;
@@ -157,7 +146,7 @@ private:
 class single_thread_renderer : public renderer
 {
 public:
-    virtual void render(const shared_ptr<scene_generator> &scene) override
+    virtual void render(const shared_ptr<scene_generator> &scene, shared_ptr<hittable> &lights) override
     {
         int image_width = scene->image_width;
         int image_height = scene->image_height;
@@ -182,7 +171,7 @@ public:
                     auto u = (i + random_double()) / (image_width - 1);
                     auto v = (j + random_double()) / (image_height - 1);
                     ray r = cam.get_ray(u, v);
-                    pixel_color += ray_color(r, background_color, world, max_depth);
+                    pixel_color += ray_color(r, background_color, world, lights, max_depth);
                 }
 
                 frame_buffer[m] = pixel_color;

@@ -245,8 +245,8 @@ public:
         aspect_ratio = 1.0;
         image_width = 600;
         image_height = 600;
-        samples_per_pixel = 20;
-        max_depth = 16;
+        samples_per_pixel = 100;
+        max_depth = 20;
         background_color = color(0, 0, 0);
         lookfrom = point3(278, 278, -800);
         lookat = point3(278, 278, 0);
@@ -265,9 +265,9 @@ public:
         auto red = make_shared<lambertian>(color(.65, .05, .05));
         auto white = make_shared<lambertian>(color(.73, .73, .73));
         auto green = make_shared<lambertian>(color(.12, .45, .15));
-        auto light = make_shared<diffuse_light>(color(15, 15, 15));
 
         // 灯光
+        auto light = make_shared<diffuse_light>(color(15, 15, 15));
         auto rect_light = make_shared<xz_rect>(213, 343, 227, 332, 554, light);
         objects.add(make_shared<flip_face>(rect_light));
 
@@ -347,9 +347,10 @@ public:
     the_next_week_final_scene()
     {
         aspect_ratio = 1.0;
-        image_width = 600;
-        image_height = 600;
-        samples_per_pixel = 200;
+        image_width = 400;
+        image_height = 400;
+        samples_per_pixel = 50;
+        max_depth = 10;
         background_color = color(0, 0, 0);
         lookfrom = point3(478, 278, -600);
         lookat = point3(278, 278, 0);
@@ -387,8 +388,9 @@ public:
 
         objects.add(make_shared<bvh_node>(boxes1, 0, 1));
 
-        auto light = make_shared<diffuse_light>(color(7, 7, 7));
-        objects.add(make_shared<xz_rect>(123, 423, 147, 412, 554, light));
+        auto light_mat = make_shared<diffuse_light>(color(7, 7, 7));
+        auto rect_light = make_shared<xz_rect>(123, 423, 147, 412, 554, light_mat);
+        objects.add(make_shared<flip_face>(rect_light));
 
         auto center1 = point3(400, 400, 200);
         auto center2 = center1 + vec3(30, 0, 0);

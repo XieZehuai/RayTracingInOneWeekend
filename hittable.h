@@ -61,6 +61,16 @@ public:
      * @return false 生成失败
      */
     virtual bool bounding_box(double time0, double time1, aabb &output_box) const = 0;
+
+    virtual double pdf_value(const point3 &origin, const vec3 &direction) const
+    {
+        return 0.0;
+    }
+
+    virtual vec3 random(const vec3 &origin) const
+    {
+        return vec3(1, 0, 0);
+    }
 };
 
 /**
