@@ -34,12 +34,32 @@ protected:
             return background_color;
 
         ray scattered;
-        color emitted = rec.mat->emitted(rec.u, rec.v, rec.p); // 物体表面的自发光
+        color emitted = rec.mat->emitted(r, rec, rec.u, rec.v, rec.p); // 物体表面的自发光
         double pdf;
         color albedo;
 
         if (!rec.mat->scatter(r, rec, albedo, scattered, pdf))
             return emitted;
+
+        auto on_light = point3(random_double(213, 343), 554, random_double(227, 332));
+        auto to_light = on_light - rec.p;
+        auto distance_squared = to_light.length_squared();
+        to_light = unit_vector(to_light);
+
+        if (dot(to_light, rec.normal) < 0)
+        {
+            return emitted;
+        }
+
+        double light_area = (343 - 213) * (332 - 227);
+        auto light_cosine = fabs(to_light.y());
+        if (light_cosine < 0.000001)
+        {
+            return emitted;
+        }
+
+        pdf = distance_squared / (light_cosine * light_area);
+        scattered = ray(rec.p, to_light, r.time());
 
         color attenuation = albedo * rec.mat->scattering_pdf(r, rec, scattered);
         return emitted + attenuation * ray_color(scattered, background_color, world, depth - 1) / pdf;

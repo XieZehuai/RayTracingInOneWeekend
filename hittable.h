@@ -198,4 +198,31 @@ private:
     aabb bounds;
 };
 
+class flip_face : public hittable
+{
+private:
+    shared_ptr<hittable> object;
+
+public:
+    flip_face(shared_ptr<hittable> object) : object(object)
+    {
+    }
+
+    virtual bool hit(const ray &r, double t_min, double t_max, hit_record &rec) const override
+    {
+        if (!object->hit(r, t_min, t_max, rec))
+        {
+            return false;
+        }
+
+        rec.front_face = !rec.front_face;
+        return true;
+    }
+
+    virtual bool bounding_box(double time0, double time1, aabb &output_box) const override
+    {
+        return object->bounding_box(time0, time1, output_box);
+    }
+};
+
 #endif
