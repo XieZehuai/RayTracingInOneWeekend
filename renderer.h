@@ -34,13 +34,15 @@ protected:
             return background_color;
 
         ray scattered;
-        color attenuation;
         color emitted = rec.mat->emitted(rec.u, rec.v, rec.p); // 物体表面的自发光
+        double pdf;
+        color albedo;
 
-        if (!rec.mat->scatter(r, rec, attenuation, scattered))
+        if (!rec.mat->scatter(r, rec, albedo, scattered, pdf))
             return emitted;
 
-        return emitted + attenuation * ray_color(scattered, background_color, world, depth - 1);
+        color attenuation = albedo * rec.mat->scattering_pdf(r, rec, scattered);
+        return emitted + attenuation * ray_color(scattered, background_color, world, depth - 1) / pdf;
     }
 
     void update_progress(double progress)

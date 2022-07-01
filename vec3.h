@@ -142,9 +142,29 @@ inline vec3 random_in_unit_sphere()
     }
 }
 
+inline vec3 random_in_hemisphere()
+{
+    auto r1 = random_double();
+    auto r2 = random_double();
+    auto z = sqrt(1 - r2);
+
+    auto phi = 2 * pi * r1;
+    auto x = cos(phi) * sqrt(r2);
+    auto y = sin(phi) * sqrt(r2);
+
+    return vec3(x, y, z);
+}
+
 inline vec3 random_unit_vector()
 {
-    return unit_vector(random_in_unit_sphere());
+    double r1 = random_double();
+    double r2 = random_double();
+
+    double x = cos(2 * pi * r1) * 2 * sqrt(r2 * (1 - r2));
+    double y = sin(2 * pi * r1) * 2 * sqrt(r2 * (1 - r2));
+    double z = 1 - 2 * r2;
+
+    return vec3(x, y, z);
 }
 
 inline vec3 random_in_unit_disk()

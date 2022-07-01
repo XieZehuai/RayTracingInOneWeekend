@@ -24,7 +24,7 @@ int main()
     scenes.push_back(make_shared<cornell_smoke>());             // 6
     scenes.push_back(make_shared<the_next_week_final_scene>()); // 7
 
-    auto selected_scene = scenes[7];
+    auto selected_scene = scenes[5];
 
     // 设置 std::cerr 输出浮点数时保留 2 位精度
     std::cerr << std::setiosflags(std::ios::fixed) << std::setprecision(2);

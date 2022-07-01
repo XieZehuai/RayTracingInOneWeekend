@@ -245,8 +245,8 @@ public:
         aspect_ratio = 1.0;
         image_width = 600;
         image_height = 600;
-        samples_per_pixel = 3000;
-        max_depth = 10;
+        samples_per_pixel = 100;
+        max_depth = 50;
         background_color = color(0, 0, 0);
         lookfrom = point3(278, 278, -800);
         lookat = point3(278, 278, 0);
@@ -270,8 +270,8 @@ public:
         objects.add(make_shared<yz_rect>(0, 555, 0, 555, 555, green));
         objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
         objects.add(make_shared<xz_rect>(213, 343, 227, 332, 554, light));
-        objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
         objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
+        objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
         objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
 
         shared_ptr<hittable> box1 = make_shared<box>(point3(0, 0, 0), point3(165, 330, 165), white);
