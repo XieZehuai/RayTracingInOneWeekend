@@ -14,7 +14,7 @@
 class renderer
 {
 public:
-    virtual void render(const shared_ptr<scene_generator> &scene, shared_ptr<hittable> &lights) = 0;
+    virtual void render(const shared_ptr<scene_generator> &scene, const shared_ptr<hittable> &lights) = 0;
 
     std::vector<color> get_frame_buffer() const
     {
@@ -25,32 +25,35 @@ protected:
     std::vector<color> frame_buffer;
 
     color ray_color(const ray &r, const color &background_color, const hittable &world,
-                    shared_ptr<hittable> &lights, int depth)
+                    const shared_ptr<hittable> &lights, int depth)
     {
         if (depth <= 0)
-            return color(0, 0, 0);
+            return color(0);
 
         // 如果射线没击中任何物体，则返回背景色
         hit_record rec;
         if (!world.hit(r, 0.001, infinity, rec))
             return background_color;
 
-        ray scattered;
-        color emitted = rec.mat->emitted(r, rec, rec.u, rec.v, rec.p); // 物体表面的自发光
-        double pdf_val;
-        color albedo;
-
-        if (!rec.mat->scatter(r, rec, albedo, scattered, pdf_val))
+        scatter_record srec;
+        color emitted = rec.mat->emitted(r, rec, rec.u, rec.v, rec.p);
+        if (!rec.mat->scatter(r, rec, srec))
+        {
             return emitted;
+        }
 
-        auto p0 = make_shared<hittable_pdf>(lights, rec.p);
-        auto p1 = make_shared<cosine_pdf>(rec.normal);
-        mixture_pdf mixture_pdf(p0, p1);
+        if (srec.is_specular)
+        {
+            return srec.attenuation * ray_color(srec.specular_ray, background_color, world, lights, depth - 1);
+        }
 
-        scattered = ray(rec.p, mixture_pdf.generate(), r.time());
-        pdf_val = mixture_pdf.sample(scattered.direction());
+        auto light_ptr = make_shared<hittable_pdf>(lights, rec.p);
+        mixture_pdf p(light_ptr, srec.pdf_ptr);
 
-        color attenuation = albedo * rec.mat->scattering_pdf(r, rec, scattered);
+        ray scattered = ray(rec.p, p.generate(), r.time());
+        auto pdf_val = p.sample(scattered.direction());
+
+        auto attenuation = srec.attenuation * rec.mat->scattering_pdf(r, rec, scattered);
         return emitted + attenuation * ray_color(scattered, background_color, world, lights, depth - 1) / pdf_val;
     }
 
@@ -68,7 +71,7 @@ public:
     {
     }
 
-    virtual void render(const shared_ptr<scene_generator> &scene, shared_ptr<hittable> &lights) override
+    virtual void render(const shared_ptr<scene_generator> &scene, const shared_ptr<hittable> &lights) override
     {
         int image_width = scene->image_width;
         int image_height = scene->image_height;
@@ -146,7 +149,7 @@ private:
 class single_thread_renderer : public renderer
 {
 public:
-    virtual void render(const shared_ptr<scene_generator> &scene, shared_ptr<hittable> &lights) override
+    virtual void render(const shared_ptr<scene_generator> &scene, const shared_ptr<hittable> &lights) override
     {
         int image_width = scene->image_width;
         int image_height = scene->image_height;

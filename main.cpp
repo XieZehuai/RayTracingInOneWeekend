@@ -23,6 +23,7 @@ int main()
     scenes.push_back(make_shared<cornell_box>());               // 5
     scenes.push_back(make_shared<cornell_smoke>());             // 6
     scenes.push_back(make_shared<the_next_week_final_scene>()); // 7
+    scenes.push_back(make_shared<test_scene>());                // 8
 
     auto selected_scene = scenes[7];
 
@@ -33,8 +34,9 @@ int main()
     multi_thread_renderer renderer(4, 4);
     // single_thread_renderer renderer;
 
-    // auto light_mat = make_shared<diffuse_light>(color(15, 15, 15));
-    shared_ptr<hittable> lights = make_shared<xz_rect>(123, 423, 147, 412, 554, make_shared<material>());
+    auto lights = make_shared<hittable_list>();
+    lights->add(make_shared<xz_rect>(123, 423, 147, 412, 554, shared_ptr<material>()));
+    lights->add(make_shared<sphere>(point3(260, 150, 45), 50, shared_ptr<material>()));
 
     clock_t start = clock();
     renderer.render(selected_scene, lights);

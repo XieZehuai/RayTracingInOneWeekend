@@ -20,15 +20,15 @@ public:
     double aspect_ratio = 16.0 / 9.0;
     int image_width = 600;
     int image_height = static_cast<int>(image_width / aspect_ratio);
-    int max_depth = 10;
+    int max_depth = 16;
     int samples_per_pixel = 200;
 
-    point3 lookfrom;
-    point3 lookat;
+    point3 lookfrom = point3(0, 0, 3);
+    point3 lookat = point3(0, 0, 0);
     double vfov = 40.0;
     double aperture = 0.0;
     vec3 vup = vec3(0, 1, 0);
-    double dist_to_focus = 10.0;
+    double dist_to_focus = 3.0;
     color background_color = vec3(0);
 
     camera get_camera() const
@@ -44,6 +44,41 @@ public:
     virtual std::string output_filename() const = 0;
 
     virtual hittable_list generate() const = 0;
+};
+
+class test_scene : public scene_generator
+{
+public:
+    test_scene()
+    {
+        lookfrom = point3(0, 2, 3);
+        lookat = point3(0, 1, 0);
+        dist_to_focus = 3;
+        background_color = color(0.2, 0.2, 0.8);
+    }
+
+    virtual std::string output_filename() const override
+    {
+        return "test_scene.ppm";
+    }
+
+    virtual hittable_list generate() const override
+    {
+        hittable_list world;
+
+        auto material_ground = make_shared<lambertian>(color(0.2, 0.7, 0.2));
+        auto material_center = make_shared<lambertian>(color(0.3, 0.5, 0.8));
+        auto material_left = make_shared<dielectric>(1.5);
+        auto material_right = make_shared<metal>(color(0.6, 0.5, 0.4), 0.0);
+
+        world.add(make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0, material_ground));
+        world.add(make_shared<sphere>(point3(0.0, 0.0, -1.0), 0.5, material_center));
+        world.add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.5, material_left));
+        world.add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), -0.4, material_left));
+        world.add(make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, material_right));
+
+        return world;
+    }
 };
 
 class random_scene : public scene_generator
@@ -243,8 +278,8 @@ public:
     cornell_box()
     {
         aspect_ratio = 1.0;
-        image_width = 600;
-        image_height = 600;
+        image_width = 400;
+        image_height = 400;
         samples_per_pixel = 100;
         max_depth = 20;
         background_color = color(0, 0, 0);
@@ -271,21 +306,22 @@ public:
         auto rect_light = make_shared<xz_rect>(213, 343, 227, 332, 554, light);
         objects.add(make_shared<flip_face>(rect_light));
 
+        // 墙壁
         objects.add(make_shared<yz_rect>(0, 555, 0, 555, 555, green));
         objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
         objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
         objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
         objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
 
+        // 后面的盒子
         shared_ptr<hittable> box1 = make_shared<box>(point3(0, 0, 0), point3(165, 330, 165), white);
         box1 = make_shared<rotate_y>(box1, 15);
         box1 = make_shared<translate>(box1, vec3(265, 0, 295));
         objects.add(box1);
 
-        shared_ptr<hittable> box2 = make_shared<box>(point3(0, 0, 0), point3(165, 165, 165), white);
-        box2 = make_shared<rotate_y>(box2, -18);
-        box2 = make_shared<translate>(box2, vec3(130, 0, 65));
-        objects.add(box2);
+        // 前面的盒子
+        auto glass = make_shared<dielectric>(1.5);
+        objects.add(make_shared<sphere>(point3(190, 90, 190), 90, glass));
 
         return objects;
     };
@@ -347,10 +383,10 @@ public:
     the_next_week_final_scene()
     {
         aspect_ratio = 1.0;
-        image_width = 400;
-        image_height = 400;
-        samples_per_pixel = 50;
-        max_depth = 10;
+        image_width = 800;
+        image_height = 800;
+        samples_per_pixel = 1000;
+        max_depth = 16;
         background_color = color(0, 0, 0);
         lookfrom = point3(478, 278, -600);
         lookat = point3(278, 278, 0);
