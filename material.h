@@ -96,7 +96,7 @@ public:
 
         double refraction_ratio = rec.front_face ? (1.0 / ir) : ir;
 
-        vec3 unit_direction = r.direction();
+        vec3 unit_direction = unit_vector(r.direction());
         double cos_theta = fmin(dot(-unit_direction, rec.normal), 1.0);
         double sin_theta = sqrt(1.0 - cos_theta * cos_theta);
 
