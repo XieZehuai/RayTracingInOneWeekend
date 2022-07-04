@@ -44,6 +44,11 @@ public:
     virtual std::string output_filename() const = 0;
 
     virtual hittable_list generate() const = 0;
+
+    virtual shared_ptr<hittable_list> lights() const
+    {
+        return make_shared<hittable_list>();
+    }
 };
 
 class test_scene : public scene_generator
@@ -296,6 +301,15 @@ public:
         return "cornell_box.ppm";
     }
 
+    virtual shared_ptr<hittable_list> lights() const override
+    {
+        auto lights = make_shared<hittable_list>();
+        lights->add(make_shared<xz_rect>(213, 343, 227, 332, 554, make_shared<material>()));
+        lights->add(make_shared<sphere>(point3(190, 90, 190), 90, make_shared<material>()));
+
+        return lights;
+    }
+
     virtual hittable_list generate() const override
     {
         hittable_list objects;
@@ -400,6 +414,15 @@ public:
     virtual std::string output_filename() const override
     {
         return "the_next_week_final_scene.ppm";
+    }
+
+    virtual shared_ptr<hittable_list> lights() const override
+    {
+        auto lights = make_shared<hittable_list>();
+        lights->add(make_shared<xz_rect>(123, 423, 147, 412, 554, make_shared<material>()));
+        lights->add(make_shared<sphere>(point3(260, 150, 45), 50, make_shared<material>()));
+
+        return lights;
     }
 
     virtual hittable_list generate() const override
