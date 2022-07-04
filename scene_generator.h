@@ -51,10 +51,10 @@ class test_scene : public scene_generator
 public:
     test_scene()
     {
-        lookfrom = point3(0, 2, 3);
-        lookat = point3(0, 1, 0);
-        dist_to_focus = 3;
-        background_color = color(0.2, 0.2, 0.8);
+        lookfrom = point3(-2, 2, 3);
+        lookat = point3(-1, 0, 0);
+        dist_to_focus = 5;
+        // background_color = color(0.9, 0.95, 1.0);
     }
 
     virtual std::string output_filename() const override
@@ -74,8 +74,11 @@ public:
         world.add(make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0, material_ground));
         world.add(make_shared<sphere>(point3(0.0, 0.0, -1.0), 0.5, material_center));
         world.add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.5, material_left));
-        world.add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), -0.4, material_left));
         world.add(make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, material_right));
+
+        auto material_light = make_shared<diffuse_light>(color(10, 10, 10));
+        auto light_rect = make_shared<xy_rect>(-1, 1, 0.5, 1.5, 4, material_light);
+        world.add(make_shared<flip_face>(light_rect));
 
         return world;
     }
@@ -314,6 +317,7 @@ public:
         objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
 
         // 后面的盒子
+        shared_ptr<material> aluminum = make_shared<metal>(color(0.8, 0.85, 0.88), 0.0);
         shared_ptr<hittable> box1 = make_shared<box>(point3(0, 0, 0), point3(165, 330, 165), white);
         box1 = make_shared<rotate_y>(box1, 15);
         box1 = make_shared<translate>(box1, vec3(265, 0, 295));
@@ -383,8 +387,8 @@ public:
     the_next_week_final_scene()
     {
         aspect_ratio = 1.0;
-        image_width = 800;
-        image_height = 800;
+        image_width = 400;
+        image_height = 400;
         samples_per_pixel = 1000;
         max_depth = 16;
         background_color = color(0, 0, 0);

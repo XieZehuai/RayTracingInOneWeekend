@@ -30,6 +30,27 @@ public:
         output_box = aabb(point3(x0, y0, z - 0.0001), point3(x1, y1, z + 0.0001));
         return true;
     }
+
+    virtual double pdf_value(const point3 &origin, const vec3 &direction) const override
+    {
+        hit_record rec;
+        if (!hit(ray(origin, direction), 0.001, infinity, rec))
+        {
+            return 0;
+        }
+
+        auto area = (x1 - x0) * (y1 - y0);
+        auto distance_squared = rec.t * rec.t * direction.length_squared();
+        auto cosine = fabs(dot(direction, rec.normal) / direction.length());
+
+        return distance_squared / (cosine * area);
+    }
+
+    virtual vec3 random(const point3 &origin) const override
+    {
+        auto random_point = point3(random_double(x0, x1), random_double(y0, y1), z);
+        return random_point - origin;
+    }
 };
 
 class xz_rect : public hittable

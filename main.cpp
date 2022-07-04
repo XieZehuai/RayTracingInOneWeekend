@@ -35,8 +35,10 @@ int main()
     // single_thread_renderer renderer;
 
     auto lights = make_shared<hittable_list>();
-    lights->add(make_shared<xz_rect>(123, 423, 147, 412, 554, shared_ptr<material>()));
-    lights->add(make_shared<sphere>(point3(260, 150, 45), 50, shared_ptr<material>()));
+    lights->add(make_shared<xz_rect>(123, 423, 147, 412, 554, make_shared<material>()));
+    lights->add(make_shared<sphere>(point3(260, 150, 45), 50, make_shared<material>()));
+    // lights->add(make_shared<sphere>(point3(360, 150, 145), 70, make_shared<material>()));
+    // lights->add(make_shared<sphere>(point3(0, 0, 0), 5000, make_shared<material>()));
 
     clock_t start = clock();
     renderer.render(selected_scene, lights);
