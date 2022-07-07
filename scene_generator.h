@@ -56,15 +56,26 @@ class test_scene : public scene_generator
 public:
     test_scene()
     {
-        lookfrom = point3(-2, 2, 3);
-        lookat = point3(-1, 0, 0);
-        dist_to_focus = 5;
-        // background_color = color(0.9, 0.95, 1.0);
+        lookfrom = point3(0, 3, 2);
+        lookat = point3(0, 0, 0);
+        dist_to_focus = (lookat - lookfrom).length();
+        samples_per_pixel = 500;
+        background_color = color(0.2, 0.2, 0.2);
     }
 
     virtual std::string output_filename() const override
     {
         return "test_scene.ppm";
+    }
+
+    virtual shared_ptr<hittable_list> lights() const override
+    {
+        auto lights = make_shared<hittable_list>();
+        lights->add(make_shared<xy_rect>(-1, 1, 0.5, 1.5, 2, make_shared<material>()));
+        lights->add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.5, make_shared<material>()));
+        lights->add(make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, make_shared<material>()));
+
+        return lights;
     }
 
     virtual hittable_list generate() const override
@@ -82,7 +93,7 @@ public:
         world.add(make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, material_right));
 
         auto material_light = make_shared<diffuse_light>(color(10, 10, 10));
-        auto light_rect = make_shared<xy_rect>(-1, 1, 0.5, 1.5, 4, material_light);
+        auto light_rect = make_shared<xy_rect>(-1, 1, 0.5, 1.5, 2, material_light);
         world.add(make_shared<flip_face>(light_rect));
 
         return world;
