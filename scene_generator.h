@@ -299,8 +299,8 @@ public:
         aspect_ratio = 1.0;
         image_width = 400;
         image_height = 400;
-        samples_per_pixel = 100;
-        max_depth = 20;
+        samples_per_pixel = 400;
+        max_depth = 8;
         background_color = color(0, 0, 0);
         lookfrom = point3(278, 278, -800);
         lookat = point3(278, 278, 0);
@@ -362,9 +362,10 @@ public:
     cornell_smoke()
     {
         aspect_ratio = 1.0;
-        image_width = 600;
-        image_height = 600;
-        samples_per_pixel = 200;
+        image_width = 400;
+        image_height = 400;
+        samples_per_pixel = 400;
+        max_depth = 8,
         lookfrom = point3(278, 278, -800);
         lookat = point3(278, 278, 0);
         vfov = 40.0;
@@ -414,8 +415,8 @@ public:
         aspect_ratio = 1.0;
         image_width = 400;
         image_height = 400;
-        samples_per_pixel = 1000;
-        max_depth = 16;
+        samples_per_pixel = 400;
+        max_depth = 8;
         background_color = color(0, 0, 0);
         lookfrom = point3(478, 278, -600);
         lookat = point3(278, 278, 0);
