@@ -6,6 +6,81 @@
 #include "triangle.h"
 #include "bvh.h"
 
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+
+std::vector<shared_ptr<triangle>> load_model_from_obj_file(const char *filename, shared_ptr<material> mat, float scale = 1.0f)
+{
+    std::ifstream file;
+    file.open(filename, std::ios::in);
+
+    if (!file || !file.good())
+    {
+        std::cout << filename << std::endl;
+        return {};
+    }
+
+    std::vector<point3> vertices;
+    std::vector<vec3> uvs;
+    std::vector<uint32_t> indices;
+
+    std::string line;
+    while (std::getline(file, line))
+    {
+        std::stringstream ss(line);
+
+        std::string type;
+        ss >> type;
+
+        if (strcmp(type.c_str(), "v") == 0)
+        {
+            float x, y, z;
+            ss >> x >> y >> z;
+            vertices.push_back(point3(x * scale, y * scale, z * scale));
+        }
+        else if (strcmp(type.c_str(), "vt") == 0)
+        {
+            float u, v;
+            ss >> u >> v;
+            uvs.push_back(vec3(u, v, 0));
+        }
+        else if (strcmp(type.c_str(), "f") == 0)
+        {
+            int i0, i1, i2;
+            ss >> i0 >> i1 >> i2;
+            indices.push_back(i0 - 1);
+            indices.push_back(i1 - 1);
+            indices.push_back(i2 - 1);
+        }
+    }
+
+    auto defaultUV = vec3(0);
+    std::vector<shared_ptr<triangle>> triangles;
+
+    for (int i = 0; i < indices.size(); i += 3)
+    {
+        auto i0 = indices[i], i1 = indices[i + 1], i2 = indices[i + 2];
+
+        auto p0 = vertices[i0];
+        auto p1 = vertices[i1];
+        auto p2 = vertices[i2];
+
+        auto uv0 = i0 >= uvs.size() ? defaultUV : uvs[i0];
+        auto uv1 = i1 >= uvs.size() ? defaultUV : uvs[i1];
+        auto uv2 = i2 >= uvs.size() ? defaultUV : uvs[i2];
+
+        auto v0 = vertex(p0, uv0);
+        auto v1 = vertex(p1, uv1);
+        auto v2 = vertex(p2, uv2);
+
+        triangles.push_back(make_shared<triangle>(v0, v1, v2, mat));
+    }
+
+    return triangles;
+}
+
 class mesh : public hittable
 {
 private:
@@ -14,6 +89,7 @@ private:
 
 public:
     mesh() {}
+
     mesh(shared_ptr<material> mat)
     {
         const int width = 1;
@@ -42,6 +118,18 @@ public:
                 triangles.add(make_shared<triangle>(v0, v1, v2, mat));
                 triangles.add(make_shared<triangle>(v1, v3, v2, mat));
             }
+        }
+
+        bvhNode = bvh_node(triangles, 0.0, 1.0);
+    }
+
+    mesh(const char *obj_filename, shared_ptr<material> mat, float scale = 1.0f)
+    {
+        auto tris = load_model_from_obj_file(obj_filename, mat, scale);
+
+        for (int i = 0; i < tris.size(); i++)
+        {
+            triangles.add(tris[i]);
         }
 
         bvhNode = bvh_node(triangles, 0.0, 1.0);

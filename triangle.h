@@ -8,6 +8,10 @@ struct vertex
 {
     point3 position;
     vec3 uv; // 没有 vec2 类，用 vec3 代替
+
+    vertex(const point3 &position, const vec3 &uv) : position(position), uv(uv)
+    {
+    }
 };
 
 class triangle : public hittable

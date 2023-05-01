@@ -58,8 +58,8 @@ class test_scene : public scene_generator
 public:
     test_scene()
     {
-        lookfrom = point3(0, 0, 2);
-        lookat = point3(0, 0, 0);
+        lookfrom = point3(0, 2, 3);
+        lookat = point3(0, 1, 0);
         dist_to_focus = (lookat - lookfrom).length();
         samples_per_pixel = 50;
         background_color = color(0, 0, 0);
@@ -73,7 +73,7 @@ public:
     virtual shared_ptr<hittable_list> lights() const override
     {
         auto lights = make_shared<hittable_list>();
-        lights->add(make_shared<sphere>(point3(0, 2, 2), 1, make_shared<material>()));
+        lights->add(make_shared<sphere>(point3(0, 5, 5), 1, make_shared<material>()));
 
         return lights;
     }
@@ -84,10 +84,10 @@ public:
 
         auto tex = make_shared<image_texture>("../../res/earthmap.jpg");
         auto mat = make_shared<lambertian>(tex);
-        world.add(make_shared<mesh>(mat));
+        world.add(make_shared<mesh>("../../res/bunny.obj", mat));
 
         auto light_mat = make_shared<diffuse_light>(color(4, 4, 4));
-        world.add(make_shared<sphere>(point3(0, 2, 2), 1, light_mat));
+        world.add(make_shared<sphere>(point3(0, 5, 5), 1, light_mat));
 
         return world;
     }
@@ -290,9 +290,9 @@ public:
     cornell_box()
     {
         aspect_ratio = 1.0;
-        image_width = 400;
-        image_height = 400;
-        samples_per_pixel = 400;
+        image_width = 600;
+        image_height = 600;
+        samples_per_pixel = 500;
         max_depth = 8;
         background_color = color(0, 0, 0);
         lookfrom = point3(278, 278, -800);
@@ -309,7 +309,6 @@ public:
     {
         auto lights = make_shared<hittable_list>();
         lights->add(make_shared<xz_rect>(213, 343, 227, 332, 554, make_shared<material>()));
-        lights->add(make_shared<sphere>(point3(190, 90, 190), 90, make_shared<material>()));
 
         return lights;
     }
@@ -335,15 +334,17 @@ public:
         objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
 
         // 后面的盒子
-        shared_ptr<material> aluminum = make_shared<metal>(color(0.8, 0.85, 0.88), 0.0);
-        shared_ptr<hittable> box1 = make_shared<box>(point3(0, 0, 0), point3(165, 330, 165), white);
-        box1 = make_shared<rotate_y>(box1, 15);
-        box1 = make_shared<translate>(box1, vec3(265, 0, 295));
-        objects.add(box1);
+        // shared_ptr<hittable> box1 = make_shared<box>(point3(0, 0, 0), point3(165, 330, 165), white);
+        // box1 = make_shared<rotate_y>(box1, 15);
+        // box1 = make_shared<translate>(box1, vec3(265, 0, 295));
+        // objects.add(box1);
 
         // 前面的盒子
-        auto glass = make_shared<dielectric>(1.5);
-        objects.add(make_shared<sphere>(point3(190, 90, 190), 90, glass));
+        shared_ptr<material> aluminum = make_shared<metal>(color(0.8, 0.85, 0.88), 0.0);
+        shared_ptr<hittable> model = make_shared<mesh>("../../res/bunny.obj", aluminum, 2000.0f);
+        model = make_shared<rotate_y>(model, 180);
+        model = make_shared<translate>(model, vec3(220, 0, 295));
+        objects.add(model);
 
         return objects;
     };
