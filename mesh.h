@@ -16,16 +16,28 @@ public:
     mesh() {}
     mesh(shared_ptr<material> mat)
     {
-        const float width = 1.0f / 20.0f;
+        const int width = 1;
+        const float size = 1.0f / width;
+        const float uv_stride = 0.5f / width;
 
-        for (int y = -20; y < 20; y++)
+        for (int y = -width; y < width; y++)
         {
-            for (int x = -20; x < 20; x++)
+            for (int x = -width; x < width; x++)
             {
-                auto v0 = point3(x * width, y * width, -1.0f);
-                auto v1 = point3((x + 1) * width, y * width, -1.0f);
-                auto v2 = point3(x * width, (y + 1) * width, -1.0f);
-                auto v3 = point3((x + 1) * width, (y + 1) * width, -1.0f);
+                auto p0 = point3(x * size, y * size, -1.0f);
+                auto p1 = point3((x + 1) * size, y * size, -1.0f);
+                auto p2 = point3(x * size, (y + 1) * size, -1.0f);
+                auto p3 = point3((x + 1) * size, (y + 1) * size, -1.0f);
+
+                auto uv0 = vec3((x + width) * uv_stride, (y + width) * uv_stride, 0);
+                auto uv1 = vec3((x + 1 + width) * uv_stride, (y + width) * uv_stride, 0);
+                auto uv2 = vec3((x + width) * uv_stride, (y + 1 + width) * uv_stride, 0);
+                auto uv3 = vec3((x + 1 + width) * uv_stride, (y + 1 + width) * uv_stride, 0);
+
+                vertex v0 = {p0, uv0};
+                vertex v1 = {p1, uv1};
+                vertex v2 = {p2, uv2};
+                vertex v3 = {p3, uv3};
 
                 triangles.add(make_shared<triangle>(v0, v1, v2, mat));
                 triangles.add(make_shared<triangle>(v1, v3, v2, mat));
@@ -38,13 +50,11 @@ public:
     virtual bool hit(const ray &ray, double t_min, double t_max, hit_record &rec) const override
     {
         return bvhNode.hit(ray, t_min, t_max, rec);
-        // return triangles.hit(ray, t_min, t_max, rec);
     }
 
     virtual bool bounding_box(double time0, double time1, aabb &output_box) const override
     {
         return bvhNode.bounding_box(time0, time1, output_box);
-        // return triangles.bounding_box(time0, time1, output_box);
     }
 };
 

@@ -82,9 +82,9 @@ public:
     {
         hittable_list world;
 
-        auto material_ground = make_shared<lambertian>(color(0.2, 0.7, 0.2));
-
-        world.add(make_shared<mesh>(material_ground));
+        auto tex = make_shared<image_texture>("../../res/earthmap.jpg");
+        auto mat = make_shared<lambertian>(tex);
+        world.add(make_shared<mesh>(mat));
 
         auto light_mat = make_shared<diffuse_light>(color(4, 4, 4));
         world.add(make_shared<sphere>(point3(0, 2, 2), 1, light_mat));
