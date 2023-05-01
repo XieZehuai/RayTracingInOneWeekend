@@ -13,6 +13,8 @@
 #include "texture.h"
 #include "material.h"
 #include "camera.h"
+#include "mesh.h"
+#include "bvh.h"
 
 class scene_generator
 {
@@ -56,11 +58,11 @@ class test_scene : public scene_generator
 public:
     test_scene()
     {
-        lookfrom = point3(0, 3, 2);
+        lookfrom = point3(0, 0, 2);
         lookat = point3(0, 0, 0);
         dist_to_focus = (lookat - lookfrom).length();
-        samples_per_pixel = 500;
-        background_color = color(0.2, 0.2, 0.2);
+        samples_per_pixel = 50;
+        background_color = color(0, 0, 0);
     }
 
     virtual std::string output_filename() const override
@@ -71,9 +73,7 @@ public:
     virtual shared_ptr<hittable_list> lights() const override
     {
         auto lights = make_shared<hittable_list>();
-        lights->add(make_shared<xy_rect>(-1, 1, 0.5, 1.5, 2, make_shared<material>()));
-        lights->add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.5, make_shared<material>()));
-        lights->add(make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, make_shared<material>()));
+        lights->add(make_shared<sphere>(point3(0, 2, 2), 1, make_shared<material>()));
 
         return lights;
     }
@@ -83,18 +83,11 @@ public:
         hittable_list world;
 
         auto material_ground = make_shared<lambertian>(color(0.2, 0.7, 0.2));
-        auto material_center = make_shared<lambertian>(color(0.3, 0.5, 0.8));
-        auto material_left = make_shared<dielectric>(1.5);
-        auto material_right = make_shared<metal>(color(0.6, 0.5, 0.4), 0.0);
 
-        world.add(make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0, material_ground));
-        world.add(make_shared<sphere>(point3(0.0, 0.0, -1.0), 0.5, material_center));
-        world.add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.5, material_left));
-        world.add(make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, material_right));
+        world.add(make_shared<mesh>(material_ground));
 
-        auto material_light = make_shared<diffuse_light>(color(10, 10, 10));
-        auto light_rect = make_shared<xy_rect>(-1, 1, 0.5, 1.5, 2, material_light);
-        world.add(make_shared<flip_face>(light_rect));
+        auto light_mat = make_shared<diffuse_light>(color(4, 4, 4));
+        world.add(make_shared<sphere>(point3(0, 2, 2), 1, light_mat));
 
         return world;
     }

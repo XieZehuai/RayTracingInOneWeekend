@@ -13,7 +13,7 @@
 class bvh_node : public hittable
 {
 public:
-    bvh_node();
+    bvh_node() {}
 
     /**
      * @brief 为 hittalbe_list 构建 bvh 树
