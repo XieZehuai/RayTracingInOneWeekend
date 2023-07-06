@@ -7,9 +7,10 @@
 struct vertex
 {
     point3 position;
+    vec3 normal;
     vec3 uv; // 没有 vec2 类，用 vec3 代替
 
-    vertex(const point3 &position, const vec3 &uv) : position(position), uv(uv)
+    vertex(const point3 &position, const vec3 &normal, const vec3 &uv) : position(position), normal(normal), uv(uv)
     {
     }
 };
@@ -23,7 +24,6 @@ public:
 private:
     vec3 e1, e2;
     vec3 uv1, uv2;
-    vec3 normal;
 
 public:
     triangle(vertex v0, vertex v1, vertex v2, shared_ptr<material> mat)
@@ -31,7 +31,6 @@ public:
     {
         e1 = v1.position - v0.position;
         e2 = v2.position - v0.position;
-        normal = unit_vector(cross(e1, e2));
 
         uv1 = v1.uv - v0.uv;
         uv2 = v2.uv - v0.uv;
@@ -67,6 +66,7 @@ bool triangle::hit(const ray &ray, double t_min, double t_max, hit_record &rec) 
         return false;
 
     auto uv = uv1 * u + uv2 * v + v0.uv;
+    auto normal = unit_vector((1.0f - u - v) * v0.normal + u * v1.normal + v * v2.normal);
 
     rec.t = t;
     rec.u = uv.x();
